@@ -4,4 +4,5 @@ public enum Experience {
     JUNIOR,
     MID,
     SENIOR
+
 }

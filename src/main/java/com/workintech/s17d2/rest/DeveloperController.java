@@ -76,4 +76,5 @@ public class DeveloperController {
     public Developer deleteDeveloper(@PathVariable Integer id) {
         return developers.remove(id);
     }
+
 }
