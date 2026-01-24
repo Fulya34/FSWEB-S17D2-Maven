@@ -11,10 +11,13 @@ import java.util.*;
 @RequestMapping("/developers")
 public class DeveloperController {
 
-    private Map<Integer, Developer> developers;
+    // ❗ private DEĞİL → testler erişebilsin diye
+    public Map<Integer, Developer> developers;
+
+
     private final Taxable taxable;
 
-    // Dependency Injection (Constructor Injection)
+    // Constructor Injection
     public DeveloperController(Taxable taxable) {
         this.taxable = taxable;
     }
@@ -39,21 +42,22 @@ public class DeveloperController {
 
     // POST
     @PostMapping
+    @ResponseStatus(code = org.springframework.http.HttpStatus.CREATED)
     public Developer addDeveloper(@RequestBody Developer dev) {
 
         Developer newDev;
         double salary = dev.getSalary();
 
         if (dev.getExperience() == Experience.JUNIOR) {
-            salary -= salary * taxable.getSimpleTaxRate();
+            salary -= salary * taxable.getSimpleTaxRate() / 100;
             newDev = new JuniorDeveloper(dev.getId(), dev.getName(), salary);
 
         } else if (dev.getExperience() == Experience.MID) {
-            salary -= salary * taxable.getMiddleTaxRate();
+            salary -= salary * taxable.getMiddleTaxRate() / 100;
             newDev = new MidDeveloper(dev.getId(), dev.getName(), salary);
 
         } else {
-            salary -= salary * taxable.getUpperTaxRate();
+            salary -= salary * taxable.getUpperTaxRate() / 100;
             newDev = new SeniorDeveloper(dev.getId(), dev.getName(), salary);
         }
 
@@ -67,8 +71,9 @@ public class DeveloperController {
             @PathVariable Integer id,
             @RequestBody Developer dev) {
 
-        developers.put(id, dev);
-        return dev;
+        developers.remove(id);
+        dev.setId(id);
+        return addDeveloper(dev);
     }
 
     // DELETE
@@ -76,5 +81,4 @@ public class DeveloperController {
     public Developer deleteDeveloper(@PathVariable Integer id) {
         return developers.remove(id);
     }
-//
 }
